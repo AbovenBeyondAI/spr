@@ -94,7 +94,9 @@ Visit each of these on the test blog and confirm the design:
 - [ ] **Contact** — the form renders below the contact details and actually sends
 - [ ] **A published post** — article layout
 - [ ] **A bad URL** (e.g. `/p/does-not-exist.html`) — the 404 page
-- [ ] **On a phone** — nav collapses, grids go single-column
+- [ ] **On a phone** — the hamburger appears, tapping it drops down the menu with all six
+      links plus the "Book a consultation" button, the icon animates to an ✕, and the menu
+      closes when you pick a link, tap outside, or press Escape
 
 ### Text round-trip check
 
@@ -125,6 +127,13 @@ If any turned into `?` or mojibake, the theme needs re-pasting with the encoding
   borders) is a literal `rgba()` and won't follow a colour change.
 - **Navigation uses root-relative links** (`/p/about.html`, `/search`), not Blogger data
   tags, so the same file works on `*.blogspot.com` and on a custom domain with no edits.
+- **The stylesheet is deliberately 100% ASCII.** Blogger re-encodes non-ASCII characters
+  as HTML entities when it saves a theme. That's harmless in HTML text (browsers decode
+  `&#8212;` back to `—`), but CSS has no concept of HTML entities, so a `content:'—'`
+  becomes the six literal characters `&#8212;` on the page. Any character that must appear
+  in CSS `content:` is therefore written as a CSS escape — the list bullets use
+  `content:'\2014'`, not a literal em dash. **If you add CSS with a dash, symbol or accent
+  in `content:`, use the escape form** (`\2014` em dash, `\2192` →, `\00a9` ©).
 - **The homepage deliberately renders no post list**, per the agreed scope.
 
 ## Known differences from the static site

@@ -43,9 +43,9 @@
 
 </Group>
 
-<Variable name="bodyFont" description="Body font stack" type="string" value="'IBM Plex Sans', sans-serif"/>
-<Variable name="displayFont" description="Display font stack" type="string" value="'Fraunces', serif"/>
-<Variable name="monoFont" description="Mono font stack" type="string" value="'IBM Plex Mono', monospace"/>
+<Variable name="bodyFont" description="Body font stack" type="string" default="'IBM Plex Sans', sans-serif" value="'IBM Plex Sans', sans-serif"/>
+<Variable name="displayFont" description="Display font stack" type="string" default="'Fraunces', serif" value="'Fraunces', serif"/>
+<Variable name="monoFont" description="Mono font stack" type="string" default="'IBM Plex Mono', monospace" value="'IBM Plex Mono', monospace"/>
 
 -----------------------------------------------
 */
@@ -66,6 +66,10 @@
   --display:$(displayFont);
   --body:$(bodyFont);
   --mono:$(monoFont);
+
+  /* Height of the sticky header - keeps sticky sub-navs and anchor jumps aligned.
+     Overridden in the mobile media query below. */
+  --nav-h:71px;
 }
 
 *{box-sizing:border-box; margin:0; padding:0;}
@@ -139,6 +143,23 @@ header.nav .wrap{
 }
 .nav-cta:hover{background:var(--teal-deep); border-color:var(--teal-deep);}
 
+/* Hamburger - hidden on desktop, shown in the mobile media query below. */
+.nav-toggle{
+  display:none; align-items:center; justify-content:center; flex-direction:column; gap:5px;
+  width:44px; height:44px; padding:11px; flex:none;
+  background:none; border:1px solid var(--line); border-radius:2px; cursor:pointer;
+}
+.nav-toggle span{
+  display:block; width:100%; height:2px; background:var(--ink-soft); border-radius:1px;
+  transition:transform .2s ease, opacity .2s ease;
+}
+header.nav.menu-open .nav-toggle span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+header.nav.menu-open .nav-toggle span:nth-child(2){opacity:0;}
+header.nav.menu-open .nav-toggle span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+
+/* CTA inside the mobile panel - desktop keeps the standalone .nav-cta button. */
+.navlinks-cta{display:none;}
+
 /* ---------- Hero ---------- */
 .hero{
   background:var(--ink);
@@ -196,6 +217,8 @@ h1 em{font-style:italic; color:var(--gold-soft); font-weight:500;}
 
 /* ---------- Section scaffolding ---------- */
 section{padding-top:88px; padding-bottom:88px;}
+/* Keep anchor targets clear of the sticky header. */
+section[id], h1[id], h2[id], h3[id]{scroll-margin-top:calc(var(--nav-h) + 14px);}
 .section-head{max-width:640px; margin-bottom:52px;}
 .section-head .eyebrow{color:var(--gold); margin-bottom:14px;}
 .section-head .eyebrow::before{background:var(--gold);}
@@ -269,7 +292,7 @@ section{padding-top:88px; padding-bottom:88px;}
   font-size:15px; color:var(--ink-soft); padding:10px 0; border-bottom:1px dashed var(--line);
   display:flex; gap:10px; align-items:baseline;
 }
-.doc-panel li::before{content:'—'; color:var(--gold); flex:none;}
+.doc-panel li::before{content:'\2014'; color:var(--gold); flex:none;}
 
 /* ---------- Reviews ---------- */
 .reviews{background:var(--paper-dim);}
@@ -326,17 +349,17 @@ footer .wrap{padding-top:64px; padding-bottom:36px;}
 
 /* Services page */
 .svc-nav{
-  position:sticky; top:73px; background:var(--paper-dim); border-bottom:1px solid var(--line);
-  overflow-x:auto; z-index:40;
+  position:sticky; top:var(--nav-h); background:var(--paper-dim); border-bottom:1px solid var(--line);
+  overflow-x:auto; -webkit-overflow-scrolling:touch; z-index:40;
 }
 .svc-nav .wrap{display:flex; gap:4px; padding-top:0; padding-bottom:0; white-space:nowrap;}
 .svc-nav a{
   font-family:var(--mono); font-size:12.5px; padding:14px 16px; color:var(--slate);
-  border-bottom:2px solid transparent;
+  border-bottom:2px solid transparent; flex:none;
 }
 .svc-nav a:hover{color:var(--teal); border-bottom-color:var(--teal);}
-.svc-block{padding-top:64px; padding-bottom:64px; border-bottom:1px solid var(--line); scroll-margin-top:130px;}
-/* Explicit .alt instead of :nth-child(even) — Blogger may re-wrap page content. */
+.svc-block{padding-top:64px; padding-bottom:64px; border-bottom:1px solid var(--line); scroll-margin-top:calc(var(--nav-h) + 58px);}
+/* Explicit .alt instead of :nth-child(even) - Blogger may re-wrap page content. */
 .svc-block.alt{background:var(--paper-dim);}
 .svc-block .wrap{display:grid; grid-template-columns:1fr 1fr; gap:56px; align-items:start;}
 .svc-block .idx{font-family:var(--mono); font-size:13px; color:var(--gold); letter-spacing:0.05em; margin-bottom:14px;}
@@ -348,7 +371,7 @@ footer .wrap{padding-top:64px; padding-bottom:36px;}
   font-size:14.5px; color:var(--ink-soft); padding:10px 0; border-bottom:1px dashed var(--line);
   display:flex; gap:10px; align-items:baseline;
 }
-.svc-block li::before{content:'—'; color:var(--gold); flex:none;}
+.svc-block li::before{content:'\2014'; color:var(--gold); flex:none;}
 
 /* Contact page */
 .contact-grid{display:grid; grid-template-columns:1fr 1fr; gap:56px; align-items:start;}
@@ -459,17 +482,80 @@ footer .wrap{padding-top:64px; padding-bottom:36px;}
 }
 
 /* ---------- Responsive ---------- */
+/* =========================================================
+   Mobile
+   ========================================================= */
 @media (max-width:900px){
-  .hero .wrap{grid-template-columns:1fr;}
+  :root{--nav-h:69px;}
+
+  /* --- Header + hamburger menu --- */
+  header.nav .wrap{padding-top:12px; padding-bottom:12px;}
+  .brand{font-size:19px;}
+  .brand .mark{width:30px; height:30px;}
+  .nav-cta{display:none;}
+  .nav-toggle{display:inline-flex;}
+
+  .navlinks{
+    display:none;
+    position:absolute; top:100%; left:0; right:0;
+    flex-direction:column; align-items:stretch; gap:0;
+    background:var(--paper); border-bottom:1px solid var(--line);
+    padding:6px 18px 20px;
+    box-shadow:0 22px 34px rgba(18,35,59,0.18);
+    max-height:calc(100vh - var(--nav-h));
+    max-height:calc(100dvh - var(--nav-h));
+    overflow-y:auto; -webkit-overflow-scrolling:touch;
+  }
+  header.nav.menu-open .navlinks{display:flex;}
+  .navlinks a{font-size:16px; padding:15px 0; border-bottom:1px solid var(--line);}
+  .navlinks a::after{display:none;}
+  /* Two classes so this beats `.navlinks a` on specificity. */
+  .navlinks .navlinks-cta{
+    display:block; margin-top:16px; text-align:center;
+    background:var(--teal); color:var(--white); border:1px solid var(--teal);
+    font-weight:600; font-size:15px; padding:14px 20px; border-radius:2px;
+  }
+  .navlinks .navlinks-cta:hover{background:var(--teal-deep); border-color:var(--teal-deep);}
+
+  /* --- Roomier small screens --- */
+  .wrap{padding-left:18px; padding-right:18px;}
+  section{padding-top:56px; padding-bottom:56px;}
+  .section-head{margin-bottom:36px;}
+  .topbar{font-size:11.5px;}
+
+  .hero .wrap{grid-template-columns:1fr; padding-top:56px; padding-bottom:56px; gap:28px;}
   .stamp-wrap{order:-1;}
-  .stamp{width:180px; height:180px;}
-  .about .wrap{grid-template-columns:1fr;}
-  .hero-stats .wrap{grid-template-columns:repeat(2,1fr); row-gap:20px;}
-  .hero-stats .stat:nth-child(2){border-right:none;}
-  .navlinks{display:none;}
+  .stamp{width:190px; height:190px;}
+  h1{font-size:clamp(31px,8.4vw,44px);}
+  .hero p.lede{font-size:16.5px; margin-bottom:28px;}
+  .page-hero{padding-top:48px; padding-bottom:48px;}
+
+  .about .wrap{grid-template-columns:1fr; gap:32px;}
   .service-grid{grid-template-columns:repeat(2,1fr);}
   .post-list{grid-template-columns:repeat(2,1fr);}
   .review-row{grid-template-columns:1fr;}
+
+  .hero-stats .wrap{grid-template-columns:repeat(2,1fr); row-gap:22px; padding-top:22px; padding-bottom:22px;}
+  .hero-stats .stat:nth-child(2){border-right:none;}
+  .hero-stats .stat{padding:0 16px;}
+  .hero-stats .num{font-size:23px;}
+
+  /* Tabs scroll sideways rather than squashing */
+  .doc-tabs{overflow-x:auto; -webkit-overflow-scrolling:touch;}
+  .doc-tab{flex:none; padding:12px 16px;}
+
+  .cta-band .wrap{flex-direction:column; align-items:flex-start; padding-top:40px; padding-bottom:40px;}
+  .cta-band h3{font-size:21px;}
+
+  .info-card{padding:24px;}
+  .map-row iframe{height:200px;}
+  .list-head{padding-top:48px; padding-bottom:48px;}
+  .post-list-section, .post-single{padding-top:44px; padding-bottom:44px;}
+  .post-head{margin-bottom:28px;}
+
+  /* Long words/URLs in post bodies must not force sideways scrolling */
+  .post-body{overflow-wrap:break-word;}
+  .post-body table{font-size:14px;}
 }
 @media (max-width:850px){
   .contact-grid{grid-template-columns:1fr;}
@@ -535,15 +621,19 @@ body#layout .reviews, body#layout .cta-band{display:none;}
       </svg>
       SPR Consultancy
     </a>
-    <nav class='navlinks'>
+    <nav class='navlinks' id='navlinks'>
       <a href='/p/about.html'>About</a>
       <a href='/p/services.html'>Services</a>
       <a href='/#process'>Process</a>
       <a href='/#documents'>Documents</a>
       <a href='/search'>Insights</a>
       <a href='/p/contact.html'>Contact</a>
+      <a class='navlinks-cta' href='/p/contact.html'>Book a consultation</a>
     </nav>
     <a class='nav-cta' href='/p/contact.html'>Book a consultation</a>
+    <button class='nav-toggle' type='button' aria-label='Open menu' aria-expanded='false' aria-controls='navlinks'>
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </header>
 
@@ -944,9 +1034,57 @@ body#layout .reviews, body#layout .cta-band{display:none;}
 <script>
 //<![CDATA[
   (function () {
-    var tabs = document.querySelectorAll('.doc-tab');
-    if (!tabs.length) return;
-    Array.prototype.forEach.call(tabs, function (tab) {
+
+    /* ---------- Mobile menu ---------- */
+    var header = document.querySelector('header.nav');
+    if (header) {
+      var toggle = header.querySelector('.nav-toggle');
+      var menu = header.querySelector('.navlinks');
+
+      var setOpen = function (open) {
+        if (open) { header.classList.add('menu-open'); }
+        else { header.classList.remove('menu-open'); }
+        if (toggle) {
+          toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+          toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+        }
+      };
+
+      if (toggle) {
+        toggle.addEventListener('click', function (e) {
+          e.preventDefault();
+          setOpen(!header.classList.contains('menu-open'));
+        });
+      }
+
+      /* Close the panel once a link is chosen. */
+      if (menu) {
+        Array.prototype.forEach.call(menu.querySelectorAll('a'), function (link) {
+          link.addEventListener('click', function () { setOpen(false); });
+        });
+      }
+
+      /* Escape closes it. */
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' || e.keyCode === 27) { setOpen(false); }
+      });
+
+      /* Tapping outside closes it. The toggle is inside the header, so it is
+         excluded here and never double-fires. */
+      document.addEventListener('click', function (e) {
+        if (!header.classList.contains('menu-open')) { return; }
+        if (header.contains(e.target)) { return; }
+        setOpen(false);
+      });
+
+      /* Reset if the viewport grows back to desktop. */
+      window.addEventListener('resize', function () {
+        if (window.innerWidth > 900) { setOpen(false); }
+      });
+    }
+
+    /* ---------- Homepage document tabs ---------- */
+    Array.prototype.forEach.call(document.querySelectorAll('.doc-tab'), function (tab) {
       tab.addEventListener('click', function () {
         Array.prototype.forEach.call(document.querySelectorAll('.doc-tab'), function (t) {
           t.classList.remove('active');
@@ -955,10 +1093,12 @@ body#layout .reviews, body#layout .cta-band{display:none;}
           p.classList.remove('active');
         });
         tab.classList.add('active');
-        var panel = document.getElementById(tab.getAttribute('data-tab'));
-        if (panel) panel.classList.add('active');
+        var target = tab.getAttribute('data-tab');
+        var docPanel = target ? document.getElementById(target) : null;
+        if (docPanel) { docPanel.classList.add('active'); }
       });
     });
+
   })();
 //]]>
 </script>
